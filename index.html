@@ -851,6 +851,14 @@ async function registerUser() {
 
   if (!fname || !lname || !email || !phone || !password) { showToast('Please fill all required fields', true); return; }
   if (password.length < 8) { showToast('Password must be at least 8 characters', true); return; }
+  // --- NEW CODE: Check for existing email ---
+  const { data: existingUser } = await sb.from('profiles').select('email').eq('email', email).maybeSingle();
+  
+  if (existingUser) {
+    showToast('This email is already registered! Please log in.', true);
+    return;
+  }
+  // ----------------------------------------
 
   const btn = document.getElementById('register-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creating account...';
