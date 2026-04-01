@@ -853,26 +853,54 @@ async function registerUser() {
   if (password.length < 8) { showToast('Password must be at least 8 characters', true); return; }
 
   const btn = document.getElementById('register-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creating account...';
 
+  // Step 1: Create auth user
   const { data, error } = await sb.auth.signUp({ email, password });
-  await new Promise(r => setTimeout(r, 1000));
-  if (error) { btn.disabled = false; btn.textContent = 'Create Account →'; showToast(error.message, true); return; }
+  if (error) {
+    btn.disabled = false; btn.textContent = 'Create Account →';
+    showToast(error.message, true); return;
+  }
 
-  // Create profile
-  const { error: profileError } = await sb.from('profiles').upsert({
-    id: data.user.id,
-    first_name: fname, last_name: lname,
-    email, phone, college, area,
-    role: regRole, skills: regRole === 'student' ? skills : [],
-    rating: null, gigs_completed: 0,
-    plan: 'free', gigs_posted_this_month: 0
-  });
+  const userId = data.user.id;
+
+  // Step 2: Wait for Supabase auth to settle
+  await new Promise(r => setTimeout(r, 1500));
+
+  // Step 3: Create profile row with upsert (insert or update if exists)
+  const profileData = {
+    id: userId,
+    first_name: fname,
+    last_name: lname,
+    email: email,
+    phone: phone,
+    college: college,
+    area: area,
+    role: regRole,
+    skills: regRole === 'student' ? skills : [],
+    gigs_completed: 0,
+    plan: 'free',
+    gigs_posted_this_month: 0
+  };
+
+  const { error: profileError } = await sb
+    .from('profiles')
+    .upsert(profileData, { onConflict: 'id' });
 
   btn.disabled = false; btn.textContent = 'Create Account →';
-  if (profileError) { showToast('Account created! Please check your email to verify.'); }
-  else { showToast(`🎉 Welcome, ${fname}! Account created successfully.`); }
+
+  if (profileError) {
+    console.error('Profile creation failed:', profileError.message);
+    // Auth worked but profile failed — still let them in, retry profile
+    await sb.from('profiles').upsert(profileData, { onConflict: 'id' });
+    showToast(`Welcome ${fname}! Account created.`);
+  } else {
+    showToast(`🎉 Welcome, ${fname}! Account created successfully.`);
+  }
+
+  currentProfile = { ...profileData };
   closeAuthModal();
+  updateNavForUser();
   showPage('profile');
 }
 
