@@ -856,10 +856,11 @@ async function registerUser() {
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
 
   const { data, error } = await sb.auth.signUp({ email, password });
+  await new Promise(r => setTimeout(r, 1000));
   if (error) { btn.disabled = false; btn.textContent = 'Create Account →'; showToast(error.message, true); return; }
 
   // Create profile
-  const { error: profileError } = await sb.from('profiles').insert({
+  const { error: profileError } = await sb.from('profiles').upsert({
     id: data.user.id,
     first_name: fname, last_name: lname,
     email, phone, college, area,
