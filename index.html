@@ -667,7 +667,20 @@ async function registerUser() {
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creating account...';
 
   // Sign up with Supabase Auth
-  const { data, error } = await sb.auth.signUp({ email, password });
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        first_name: fname,
+        last_name:  lname,
+        phone:      phone,
+        college:    college,
+        area:       area,
+        role:       regRole
+      }
+    }
+  });
 
   if (error) {
     btn.disabled = false; btn.textContent = 'Create Account →';
@@ -688,37 +701,20 @@ async function registerUser() {
   }
 
   // Set the session so RLS policies recognise the user
-  if (data.session) {
-    await sb.auth.setSession({
-      access_token:  data.session.access_token,
-      refresh_token: data.session.refresh_token
-    });
-  }
-
-  // Give Supabase Auth a moment to settle
+  // Trigger handles profile creation automatically
+  // We just need to update skills/extra fields after
   await new Promise(r => setTimeout(r, 1500));
 
-  const profileData = {
-    id: data.user.id,
-    first_name: fname, last_name: lname,
-    email, phone, college, area,
-    role: regRole,
+  // Update the profile with extra fields trigger couldn't get
+  await sb.from('profiles').update({
     skills: regRole === 'student' ? skills : [],
-    gigs_completed: 0, plan: 'free', gigs_posted_this_month: 0
-  };
-
-  // upsert — creates if missing, updates if already there
-  const { error: profileError } = await sb
-    .from('profiles')
-    .upsert(profileData, { onConflict: 'id' });
+    role: regRole
+  }).eq('id', data.user.id);
 
   btn.disabled = false; btn.textContent = 'Create Account →';
 
-  if (profileError) {
-    console.error('Profile error:', profileError.message);
-    showToast('Account created but profile setup had an issue. Please log in.', true);
-    closeAuthModal(); return;
-  }
+  const { data: profileData } = await sb
+    .from('profiles').select('*').eq('id', data.user.id).single();
 
   currentUser    = data.user;
   currentProfile = profileData;
