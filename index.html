@@ -865,7 +865,16 @@ async function registerUser() {
   const { data, error } = await sb.auth.signUp({ email, password });
   if (error) {
     btn.disabled = false; btn.textContent = 'Create Account →';
-    if (error.message.toLowerCase().includes('already')) {
+    const msg = error.message.toLowerCase();
+    if (
+      msg.includes('already') ||
+      msg.includes('registered') ||
+      msg.includes('taken') ||
+      msg.includes('exists') ||
+      msg.includes('duplicate') ||
+      error.status === 400 ||
+      error.status === 422
+    ) {
       showToast('This email is already registered. Please log in instead.', true);
     } else {
       showToast(error.message, true);
