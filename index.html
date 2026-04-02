@@ -855,26 +855,26 @@ async function registerUser() {
   const password = document.getElementById('reg-password').value;
   const skills = [...document.querySelectorAll('#reg-skills .skill-toggle.selected')].map(e => e.textContent);
 
-  if (!fname || !lname || !email || !phone || !password) { showToast('Please fill all required fields', true); return; }
-  if (password.length < 8) { showToast('Password must be at least 8 characters', true); return; }
+  if (!fname || !lname || !email || !phone || !password) {
+    showToast('Please fill all required fields', true); return;
+  }
+  if (password.length < 8) {
+    showToast('Password must be at least 8 characters', true); return;
+  }
 
   const btn = document.getElementById('register-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creating account...';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Creating account...';
 
-  // Step 1: Create auth user
+  // Step 1: Sign up
   const { data, error } = await sb.auth.signUp({ email, password });
+
   if (error) {
     btn.disabled = false; btn.textContent = 'Create Account →';
     const msg = error.message.toLowerCase();
-    if (
-      msg.includes('already') ||
-      msg.includes('registered') ||
-      msg.includes('taken') ||
-      msg.includes('exists') ||
-      msg.includes('duplicate') ||
-      error.status === 400 ||
-      error.status === 422
-    ) {
+    if (msg.includes('already') || msg.includes('registered') ||
+        msg.includes('taken') || msg.includes('exists') ||
+        msg.includes('duplicate') || error.status === 400 || error.status === 422) {
       showToast('This email is already registered. Please log in instead.', true);
     } else {
       showToast(error.message, true);
@@ -882,6 +882,63 @@ async function registerUser() {
     return;
   }
 
+  // Step 2: Check if user object came back
+  if (!data?.user?.id) {
+    btn.disabled = false; btn.textContent = 'Create Account →';
+    showToast('Account created! Please check your email to confirm, then log in.', false);
+    closeAuthModal();
+    return;
+  }
+
+  const userId = data.user.id;
+
+  // Step 3: Set session manually so RLS knows who we are
+  if (data.session) {
+    await sb.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token
+    });
+  }
+
+  // Step 4: Wait for session to settle
+  await new Promise(r => setTimeout(r, 1500));
+
+  // Step 5: Insert profile
+  const profileData = {
+    id: userId,
+    first_name: fname,
+    last_name: lname,
+    email: email,
+    phone: phone,
+    college: college,
+    area: area,
+    role: regRole,
+    skills: regRole === 'student' ? skills : [],
+    gigs_completed: 0,
+    plan: 'free',
+    gigs_posted_this_month: 0
+  };
+
+  const { error: profileError } = await sb
+    .from('profiles')
+    .upsert(profileData, { onConflict: 'id' });
+
+  btn.disabled = false; btn.textContent = 'Create Account →';
+
+  if (profileError) {
+    console.error('Profile error:', profileError.message);
+    showToast('Account created but profile setup failed. Please log in again.', true);
+    closeAuthModal();
+    return;
+  }
+
+  currentUser = data.user;
+  currentProfile = { ...profileData };
+  showToast(`Welcome ${fname}! Account created successfully. 🎉`);
+  closeAuthModal();
+  updateNavForUser();
+  showPage('profile');
+}
   const userId = data.user.id;
 
   // Step 2: Wait for Supabase auth to settle
