@@ -262,7 +262,7 @@
     <a onclick="showPage('home')" id="nav-home" class="active">Discover</a>
     <a onclick="showPage('events')" id="nav-events">Events</a>
     <a onclick="showPage('students')" id="nav-students">Students</a>
-    <a onclick="showPage('host')" id="nav-host">Post a Gig</a>
+    <a onclick="hostPageGuard()" id="nav-host">Post a Gig</a>
   </div>
   <div class="nav-right" id="nav-right">
     <button class="btn-ghost" onclick="openAuthModal('login')">Log In</button>
@@ -275,7 +275,7 @@
   <div class="tab active" id="tab-home" onclick="showPage('home')">Home</div>
   <div class="tab" id="tab-events" onclick="showPage('events')">Browse Events</div>
   <div class="tab" id="tab-students" onclick="showPage('students')">Find Students</div>
-  <div class="tab" id="tab-host" onclick="showPage('host')">Post a Gig</div>
+  <div class="tab" id="tab-host" onclick="hostPageGuard()">Post a Gig</div>
   <div class="tab" id="tab-profile" onclick="showPage('profile')" style="display:none">My Dashboard</div>
   <div class="tab" id="tab-pricing" onclick="showPage('pricing')">Pricing</div>
 </div>
@@ -603,11 +603,17 @@ function updateNavForUser() {
       <button class="btn-ghost" onclick="logout()">Log Out</button>
     </div>`;
   document.getElementById('tab-profile').style.display = 'block';
-  // Show host form if logged in
-  document.getElementById('host-gate').style.display = 'none';
-  document.getElementById('host-form').style.display = 'block';
-}
 
+  const isHost = currentProfile?.role === 'host';
+
+  // Show Post a Gig tab only for hosts
+  document.getElementById('tab-host').style.display = isHost ? 'block' : 'none';
+  document.getElementById('nav-host').style.display = isHost ? 'block' : 'none';
+
+  // Show host form or gate based on role
+  document.getElementById('host-gate').style.display = 'none';
+  document.getElementById('host-form').style.display = isHost ? 'block' : 'none';
+}
 function updateNavForGuest() {
   document.getElementById('nav-right').innerHTML = `
     <button class="btn-ghost" onclick="openAuthModal('login')">Log In</button>
@@ -859,7 +865,12 @@ async function registerUser() {
   const { data, error } = await sb.auth.signUp({ email, password });
   if (error) {
     btn.disabled = false; btn.textContent = 'Create Account →';
-    showToast(error.message, true); return;
+    if (error.message.toLowerCase().includes('already')) {
+      showToast('This email is already registered. Please log in instead.', true);
+    } else {
+      showToast(error.message, true);
+    }
+    return;
   }
 
   const userId = data.user.id;
@@ -1127,7 +1138,19 @@ function buildSkillToggles(containerId) {
 // NAVIGATION
 // ═══════════════════════════════════
 const PAGE_TABS = { home:0, events:1, students:2, host:3, pricing:5 };
-
+function hostPageGuard() {
+  if (!currentUser) {
+    openAuthModal('login');
+    showToast('Please log in to post a gig', true);
+    return;
+  }
+  if (currentProfile?.role !== 'host') {
+    showToast('Only hosts can post gigs. Register as a Host/Organiser to post.', true);
+    return;
+  }
+  showPage('host');
+}
+  
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
