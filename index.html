@@ -5,34 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusGig – Real Work. Real Pay. Near Campus.</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
-
-  <!-- ═══════════════════════════════════════════════
-       STEP 1: Replace these two values with yours
-       Get them from: supabase.com → your project → Settings → API
-  ════════════════════════════════════════════════ -->
-  <script>
-    const SUPABASE_URL = 'https://yusfzfukxvvtbtccjhin.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1c2Z6ZnVreHZ2dGJ0Y2NqaGluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjY1NjgsImV4cCI6MjA5MDYwMjU2OH0.O82OTc4tiepjU1s5M1gfYNXQeOEC7lbtfkl24gzXnQ4';
-
-    // STEP 2: Replace with your Razorpay Key ID
-    // Get from: razorpay.com → Settings → API Keys
-    // Use test key (rzp_test_...) while testing, live key (rzp_live_...) when going live
-    const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE';
-
-    // STEP 3: Your platform commission percentage (10 = 10%)
-    const PLATFORM_FEE_PERCENT = 10;
-  </script>
-
-  <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Razorpay Checkout -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --syne: 'Syne', sans-serif;
-      --dm: 'DM Sans', sans-serif;
+      --syne: 'Syne', sans-serif; --dm: 'DM Sans', sans-serif;
       --orange: #F97316; --orange-light: #FFF7F0; --orange-mid: #FFEDD5;
       --navy: #1a1a2e; --navy2: #16213e; --mid: #6B7280;
       --light: #F9FAFB; --white: #ffffff; --border: #E5E7EB;
@@ -43,8 +20,6 @@
     }
     html { scroll-behavior: smooth; }
     body { font-family: var(--dm); background: var(--light); color: var(--navy); min-height: 100vh; font-size: 15px; line-height: 1.6; }
-
-    /* NAV */
     .nav { background: var(--navy); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 62px; position: sticky; top: 0; z-index: 200; }
     .nav-logo { font-family: var(--syne); font-size: 22px; font-weight: 800; color: #fff; cursor: pointer; letter-spacing: -0.5px; }
     .nav-logo span { color: var(--orange); }
@@ -56,32 +31,23 @@
     .btn-ghost:hover { background: rgba(255,255,255,0.08); }
     .btn-orange { background: var(--orange); border: none; color: #fff; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-family: var(--dm); font-weight: 500; cursor: pointer; transition: all 0.2s; }
     .btn-orange:hover { opacity: 0.88; transform: translateY(-1px); }
-    .nav-user { display: flex; align-items: center; gap: 8px; }
     .nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-family: var(--syne); font-size: 12px; font-weight: 700; color: #fff; cursor: pointer; }
-
-    /* TABS */
     .tab-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; overflow-x: auto; }
     .tab-bar::-webkit-scrollbar { display: none; }
     .tab { padding: 15px 20px; font-size: 14px; font-weight: 500; color: var(--mid); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; user-select: none; }
     .tab.active { color: var(--orange); border-bottom-color: var(--orange); }
     .tab:hover:not(.active) { color: var(--navy); }
-
-    /* PAGES */
     .page { display: none; padding: 2rem; max-width: 1180px; margin: 0 auto; }
     .page.active { display: block; }
-
-    /* MODAL OVERLAY */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; overflow-y: auto; padding: 1rem 0; }
     .modal-overlay.active { display: flex; }
-    .modal { background: var(--white); border-radius: 16px; padding: 2rem; width: 100%; max-width: 440px; margin: 1rem; position: relative; max-height: 90vh; overflow-y: auto; }
-    .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--mid); line-height: 1; }
+    .modal { background: var(--white); border-radius: 16px; padding: 2rem; width: 100%; max-width: 440px; margin: auto; position: relative; max-height: 90vh; overflow-y: auto; }
+    .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--mid); }
     .modal h2 { font-family: var(--syne); font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
     .modal p { color: var(--mid); font-size: 14px; margin-bottom: 1.5rem; }
     .modal-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
     .modal-tab { padding: 10px 20px; font-size: 14px; font-weight: 500; color: var(--mid); cursor: pointer; border-bottom: 2px solid transparent; }
     .modal-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
-
-    /* HERO */
     .hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%); border-radius: 18px; padding: 3rem 3rem 2.5rem; margin-bottom: 2.5rem; position: relative; overflow: hidden; }
     .hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(249,115,22,0.1); pointer-events: none; }
     .hero-tag { display: inline-flex; align-items: center; background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); color: var(--orange); font-size: 12px; font-weight: 500; padding: 5px 13px; border-radius: 20px; margin-bottom: 1.1rem; }
@@ -97,18 +63,12 @@
     .hero-stats { display: flex; gap: 2.5rem; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
     .hero-stat .num { font-family: var(--syne); font-size: 1.65rem; font-weight: 700; color: #fff; }
     .hero-stat .lbl { font-size: 12px; color: rgba(255,255,255,0.38); margin-top: 2px; }
-
-    /* SECTION */
     .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
     .section-title { font-family: var(--syne); font-size: 1.15rem; font-weight: 700; color: var(--navy); }
     .see-all { font-size: 13px; color: var(--orange); cursor: pointer; font-weight: 500; }
-
-    /* CHIPS */
     .filter-bar { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
     .chip { padding: 7px 15px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--mid); transition: all 0.2s; user-select: none; }
     .chip.active, .chip:hover { background: var(--orange); color: #fff; border-color: var(--orange); }
-
-    /* EVENT CARDS */
     .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); gap: 1rem; }
     .event-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: all 0.22s; cursor: pointer; }
     .event-card:hover { box-shadow: 0 10px 28px rgba(0,0,0,0.09); transform: translateY(-3px); }
@@ -128,9 +88,6 @@
     .spots { font-size: 12px; color: var(--mid); margin-top: 1px; }
     .apply-btn { background: var(--navy); color: #fff; border: none; padding: 7px 15px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--dm); font-weight: 500; transition: background 0.2s; }
     .apply-btn:hover { background: var(--orange); }
-    .applied-badge { background: var(--green-bg); color: var(--green-text); padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; }
-
-    /* STUDENT CARDS */
     .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 1rem; }
     .student-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 1.35rem 1rem; text-align: center; transition: all 0.22s; cursor: pointer; }
     .student-card:hover { box-shadow: 0 8px 22px rgba(0,0,0,0.08); transform: translateY(-2px); }
@@ -141,8 +98,6 @@
     .skill-chip { font-size: 10px; padding: 3px 8px; border-radius: 10px; background: var(--light); border: 1px solid var(--border); color: var(--mid); }
     .rating { font-size: 12px; color: var(--mid); display: flex; align-items: center; justify-content: center; gap: 4px; }
     .star { color: #F59E0B; font-size: 13px; }
-
-    /* FORMS */
     .form-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; max-width: 620px; }
     .form-row { margin-bottom: 1.3rem; }
     .form-label { font-size: 13px; font-weight: 500; color: var(--navy); margin-bottom: 6px; display: block; }
@@ -160,8 +115,6 @@
     .submit-btn { width: 100%; padding: 13px; font-size: 15px; font-family: var(--dm); font-weight: 500; border-radius: 10px; background: var(--orange); color: #fff; border: none; cursor: pointer; margin-top: 0.5rem; transition: all 0.2s; }
     .submit-btn:hover { opacity: 0.88; transform: translateY(-1px); }
     .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    /* DASHBOARD */
     .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
     .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
     .stat-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; margin-bottom: 10px; }
@@ -179,8 +132,6 @@
     .badge-green { background: var(--green-bg); color: var(--green-text); }
     .badge-orange { background: var(--orange-mid); color: #C2410C; }
     .badge-blue { background: var(--blue-bg); color: var(--blue-text); }
-
-    /* PROFILE */
     .profile-layout { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; }
     .profile-sidebar { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem 1.5rem; text-align: center; height: fit-content; }
     .profile-avatar { width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-family: var(--syne); font-size: 30px; font-weight: 800; color: #fff; background: var(--orange); }
@@ -197,72 +148,33 @@
     .gig-item:last-child { border-bottom: none; }
     .gig-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .gig-earn { margin-left: auto; font-size: 14px; font-weight: 600; color: var(--green); }
-
-    /* LOADING SPINNER */
-    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.7s linear infinite; }
+    .apps-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .apps-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); font-weight: 500; color: var(--mid); font-size: 12px; }
+    .apps-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--navy); vertical-align: middle; }
+    .apps-table tr:last-child td { border-bottom: none; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-state { text-align: center; padding: 3rem; color: var(--mid); font-size: 14px; }
-
-    /* PLAN BADGE */
-    .plan-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--orange-mid); color: #C2410C; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; margin-left: 8px; }
-    .premium-badge { background: var(--purple-bg); color: var(--purple-text); }
-
-    /* PAYMENT CARD */
-    .payment-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
-    .payment-card h3 { font-family: var(--syne); font-size: 16px; font-weight: 700; margin-bottom: 0.5rem; }
-    .price-row { display: flex; align-items: baseline; gap: 6px; margin: 1rem 0; }
-    .price-big { font-family: var(--syne); font-size: 2rem; font-weight: 800; color: var(--navy); }
-    .price-period { font-size: 14px; color: var(--mid); }
-    .feature-list { list-style: none; margin-bottom: 1.25rem; }
-    .feature-list li { font-size: 13px; color: var(--mid); padding: 4px 0; }
-    .feature-list li::before { content: '✓ '; color: var(--green); font-weight: 600; }
-
-    /* TOAST */
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--mid); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
     .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--navy); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 9999; transform: translateY(100px); opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); border-left: 3px solid var(--orange); max-width: 340px; }
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.error { border-left-color: var(--red); }
-
-    /* EMPTY STATE */
-    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--mid); }
-    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
-    .empty-state p { font-size: 14px; }
-
-    /* APPLICATIONS TABLE */
-    .apps-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .apps-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); font-weight: 500; color: var(--mid); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .apps-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--navy); vertical-align: middle; }
-    .apps-table tr:last-child td { border-bottom: none; }
-    .action-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; font-family: var(--dm); transition: all 0.2s; }
-    .action-accept { background: var(--green-bg); color: var(--green-text); }
-    .action-accept:hover { background: var(--green); color: #fff; }
-    .action-reject { background: #FEE2E2; color: #991B1B; margin-left: 4px; }
-    .action-reject:hover { background: var(--red); color: #fff; }
-
-    @media (max-width: 900px) {
-      .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
-      .profile-layout { grid-template-columns: 1fr; }
-      .two-col { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 2rem; }
-    }
-    @media (max-width: 640px) {
-      .nav-links { display: none; }
-      .hero { padding: 2rem; }
-      .form-grid { grid-template-columns: 1fr; }
-      .page { padding: 1rem; }
-      .dashboard-grid { grid-template-columns: 1fr 1fr; }
-    }
+    .role-selector { display: flex; gap: 10px; margin-top: 6px; }
+    @media (max-width: 900px) { .dashboard-grid { grid-template-columns: repeat(2,1fr); } .profile-layout { grid-template-columns: 1fr; } .two-col { grid-template-columns: 1fr; } .hero h1 { font-size: 2rem; } }
+    @media (max-width: 640px) { .nav-links { display: none; } .hero { padding: 2rem; } .form-grid { grid-template-columns: 1fr; } .page { padding: 1rem; } .dashboard-grid { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
 <body>
 
-<!-- ═══ NAV ═══ -->
+<!-- NAV -->
 <nav class="nav">
   <div class="nav-logo" onclick="showPage('home')">Campus<span>Gig</span></div>
   <div class="nav-links">
     <a onclick="showPage('home')" id="nav-home" class="active">Discover</a>
     <a onclick="showPage('events')" id="nav-events">Events</a>
     <a onclick="showPage('students')" id="nav-students">Students</a>
-    <a onclick="hostPageGuard()" id="nav-host">Post a Gig</a>
+    <a onclick="hostPageGuard()" id="nav-host" style="display:none">Post a Gig</a>
   </div>
   <div class="nav-right" id="nav-right">
     <button class="btn-ghost" onclick="openAuthModal('login')">Log In</button>
@@ -270,17 +182,16 @@
   </div>
 </nav>
 
-<!-- ═══ TABS ═══ -->
+<!-- TABS -->
 <div class="tab-bar">
   <div class="tab active" id="tab-home" onclick="showPage('home')">Home</div>
   <div class="tab" id="tab-events" onclick="showPage('events')">Browse Events</div>
   <div class="tab" id="tab-students" onclick="showPage('students')">Find Students</div>
-  <div class="tab" id="tab-host" onclick="hostPageGuard()">Post a Gig</div>
+  <div class="tab" id="tab-host" onclick="hostPageGuard()" style="display:none">Post a Gig</div>
   <div class="tab" id="tab-profile" onclick="showPage('profile')" style="display:none">My Dashboard</div>
-  <div class="tab" id="tab-pricing" onclick="showPage('pricing')">Pricing</div>
 </div>
 
-<!-- ═══════════ HOME ═══════════ -->
+<!-- HOME -->
 <div id="home" class="page active">
   <div class="hero">
     <div class="hero-tag">🎓 For College Students in India</div>
@@ -288,13 +199,13 @@
     <p>Earn money doing event decoration, photography, catering, and more — matched to your skills, right in your area.</p>
     <div class="hero-actions">
       <button class="btn-big btn-big-orange" onclick="openAuthModal('register')">Join as Student — Free</button>
-      <button class="btn-big btn-big-outline" onclick="showPage('host')">Post a Gig</button>
+      <button class="btn-big btn-big-outline" onclick="hostPageGuard()">Post a Gig</button>
     </div>
     <div class="hero-stats">
       <div class="hero-stat"><div class="num" id="stat-students">...</div><div class="lbl">Students Registered</div></div>
       <div class="hero-stat"><div class="num" id="stat-gigs">...</div><div class="lbl">Gigs Posted</div></div>
-      <div class="hero-stat"><div class="num" id="stat-paid">₹0</div><div class="lbl">Paid Out</div></div>
-      <div class="hero-stat"><div class="num">Free</div><div class="lbl">To Join</div></div>
+      <div class="hero-stat"><div class="num">₹0</div><div class="lbl">To Join</div></div>
+      <div class="hero-stat"><div class="num">Free</div><div class="lbl">Forever for Students</div></div>
     </div>
   </div>
   <div class="section-head">
@@ -309,7 +220,7 @@
   <div class="student-grid" id="home-students"><div class="loading-state">Loading students...</div></div>
 </div>
 
-<!-- ═══════════ EVENTS ═══════════ -->
+<!-- EVENTS -->
 <div id="events" class="page">
   <div class="section-head">
     <div class="section-title">All Events & Gigs</div>
@@ -328,7 +239,7 @@
   <div class="events-grid" id="all-events"><div class="loading-state">Loading gigs...</div></div>
 </div>
 
-<!-- ═══════════ STUDENTS ═══════════ -->
+<!-- STUDENTS -->
 <div id="students" class="page">
   <div class="section-head">
     <div class="section-title">Browse Students</div>
@@ -346,131 +257,56 @@
   <div class="student-grid" id="all-students"><div class="loading-state">Loading students...</div></div>
 </div>
 
-<!-- ═══════════ HOST / POST GIG ═══════════ -->
+<!-- POST A GIG (hosts only) -->
 <div id="host" class="page">
   <div class="section-head"><div class="section-title">Post a New Gig</div></div>
-  <p style="color:var(--mid);font-size:14px;margin-bottom:1.75rem">Describe what needs to be done — students with matching skills will apply.</p>
-  <div id="host-gate">
-    <!-- shown if not logged in -->
-    <div class="empty-state">
-      <div class="icon">🔒</div>
-      <p style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:8px">Login required to post a gig</p>
-      <p>Create a free account to post gigs and start hiring students.</p>
-      <button class="btn-orange" style="margin-top:1.5rem;padding:10px 24px" onclick="openAuthModal('register')">Create Free Account</button>
+  <p style="color:var(--mid);font-size:14px;margin-bottom:1.75rem">Describe the work — students with matching skills will apply directly.</p>
+  <div class="form-card">
+    <div class="form-row">
+      <label class="form-label">Event / Gig Title *</label>
+      <input class="form-input" id="h-title" placeholder="e.g. Decoration for 200 person wedding">
     </div>
-  </div>
-  <div id="host-form" style="display:none">
-    <div class="form-card">
-      <div class="form-row">
-        <label class="form-label">Event / Gig Title *</label>
-        <input class="form-input" id="h-title" placeholder="e.g. Decoration for 200 person wedding reception">
-      </div>
-      <div class="form-row">
-        <label class="form-label">Category *</label>
-        <select class="form-select" id="h-cat">
-          <option value="">Select category...</option>
-          <option>Decoration</option><option>Photography / Videography</option>
-          <option>Event Management</option><option>Catering / Food Service</option>
-          <option>Music / DJ</option><option>Logistics & Setup</option>
-          <option>Security / Crowd Management</option><option>Other</option>
-        </select>
-      </div>
-      <div class="form-grid">
-        <div class="form-row"><label class="form-label">Event Date *</label><input class="form-input" id="h-date" type="date"></div>
-        <div class="form-row"><label class="form-label">Location *</label><input class="form-input" id="h-loc" placeholder="e.g. Vastrapur, Ahmedabad"></div>
-      </div>
-      <div class="form-grid">
-        <div class="form-row"><label class="form-label">Budget (₹) *</label><input class="form-input" id="h-budget" type="number" placeholder="3500"></div>
-        <div class="form-row"><label class="form-label">Students Needed *</label><input class="form-input" id="h-count" type="number" placeholder="3" min="1"></div>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Work Description *</label>
-        <textarea class="form-textarea" id="h-desc" placeholder="Describe the work: duration, tools provided, attire requirements..."></textarea>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Skills Required</label>
-        <div class="skill-select-grid" id="host-skills"></div>
-      </div>
-      <div id="host-plan-notice" style="display:none;margin-bottom:1rem;padding:12px;background:var(--orange-mid);border-radius:10px;font-size:13px;color:#92400E">
-        ⚠️ You've used your 2 free gigs this month. <a href="#" onclick="showPage('pricing');return false" style="color:var(--orange);font-weight:600">Upgrade to Pro →</a>
-      </div>
-      <button class="submit-btn" id="post-gig-btn" onclick="postGig()">Post Gig →</button>
+    <div class="form-row">
+      <label class="form-label">Category *</label>
+      <select class="form-select" id="h-cat">
+        <option value="">Select category...</option>
+        <option>Decoration</option>
+        <option>Photography / Videography</option>
+        <option>Event Management</option>
+        <option>Catering / Food Service</option>
+        <option>Music / DJ</option>
+        <option>Logistics & Setup</option>
+        <option>Security / Crowd Management</option>
+        <option>Other</option>
+      </select>
     </div>
+    <div class="form-grid">
+      <div class="form-row"><label class="form-label">Event Date *</label><input class="form-input" id="h-date" type="date"></div>
+      <div class="form-row"><label class="form-label">Location *</label><input class="form-input" id="h-loc" placeholder="e.g. Vastrapur, Ahmedabad"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label class="form-label">Budget (₹) *</label><input class="form-input" id="h-budget" type="number" placeholder="3500"></div>
+      <div class="form-row"><label class="form-label">Students Needed *</label><input class="form-input" id="h-count" type="number" placeholder="3" min="1"></div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Work Description *</label>
+      <textarea class="form-textarea" id="h-desc" placeholder="Describe the work, duration, tools provided..."></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Skills Required</label>
+      <div class="skill-select-grid" id="host-skills"></div>
+    </div>
+    <button class="submit-btn" id="post-gig-btn" onclick="postGig()">Post Gig →</button>
   </div>
 </div>
 
-<!-- ═══════════ PRICING ═══════════ -->
-<div id="pricing" class="page">
-  <div class="section-head"><div class="section-title">Plans & Pricing</div></div>
-  <p style="color:var(--mid);font-size:14px;margin-bottom:2rem">Choose the plan that works for you. Students always join free.</p>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;max-width:900px">
-
-    <div class="payment-card">
-      <div style="font-size:11px;font-weight:600;color:var(--mid);letter-spacing:0.05em;margin-bottom:8px">STUDENT</div>
-      <h3>Free Forever</h3>
-      <div class="price-row"><span class="price-big">₹0</span></div>
-      <ul class="feature-list">
-        <li>Complete profile with skills</li>
-        <li>Browse all gigs near you</li>
-        <li>Apply to unlimited gigs</li>
-        <li>Receive payments via UPI</li>
-        <li>Build your rating & reviews</li>
-      </ul>
-      <button class="submit-btn" onclick="openAuthModal('register')">Join as Student</button>
-    </div>
-
-    <div class="payment-card" style="border-color:var(--orange);border-width:2px">
-      <div style="font-size:11px;font-weight:600;color:var(--orange);letter-spacing:0.05em;margin-bottom:8px">HOST — MOST POPULAR</div>
-      <h3>Pro Host</h3>
-      <div class="price-row"><span class="price-big">₹499</span><span class="price-period">/month</span></div>
-      <ul class="feature-list">
-        <li>Post unlimited gigs</li>
-        <li>Priority student matching</li>
-        <li>Access student contact details</li>
-        <li>Manage applications in dashboard</li>
-        <li>10% platform fee on payments</li>
-      </ul>
-      <button class="submit-btn" onclick="startSubscription('pro_host')">Subscribe — ₹499/mo</button>
-    </div>
-
-    <div class="payment-card">
-      <div style="font-size:11px;font-weight:600;color:var(--mid);letter-spacing:0.05em;margin-bottom:8px">HOST — STARTER</div>
-      <h3>Free Host</h3>
-      <div class="price-row"><span class="price-big">₹0</span></div>
-      <ul class="feature-list">
-        <li>2 gigs per month</li>
-        <li>Basic student matching</li>
-        <li>10% platform fee on payments</li>
-        <li>Standard support</li>
-      </ul>
-      <button class="submit-btn" style="background:var(--navy)" onclick="openAuthModal('register')">Start Free</button>
-    </div>
-
-    <div class="payment-card">
-      <div style="font-size:11px;font-weight:600;color:var(--purple-text);letter-spacing:0.05em;margin-bottom:8px">ADD-ON</div>
-      <h3>Featured Listing</h3>
-      <div class="price-row"><span class="price-big">₹199</span><span class="price-period">per gig</span></div>
-      <ul class="feature-list">
-        <li>Pin your gig to top of feed</li>
-        <li>7 days featured placement</li>
-        <li>2–3× more applications</li>
-        <li>Works with any plan</li>
-      </ul>
-      <button class="submit-btn" style="background:var(--purple)" onclick="payFeatured()">Feature a Gig — ₹199</button>
-    </div>
-
-  </div>
-</div>
-
-<!-- ═══════════ PROFILE / DASHBOARD ═══════════ -->
+<!-- PROFILE / DASHBOARD -->
 <div id="profile" class="page">
-  <div id="profile-content">
-    <div class="loading-state">Loading your dashboard...</div>
-  </div>
+  <div id="profile-content"><div class="loading-state">Loading your dashboard...</div></div>
 </div>
 
-<!-- ═══ AUTH MODAL ═══ -->
-<div class="modal-overlay" id="auth-modal">
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal" onclick="handleOverlayClick(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeAuthModal()">✕</button>
     <h2>Welcome to CampusGig</h2>
@@ -479,8 +315,7 @@
       <div class="modal-tab active" id="mt-login" onclick="switchModalTab('login')">Log In</div>
       <div class="modal-tab" id="mt-register" onclick="switchModalTab('register')">Register</div>
     </div>
-
-    <!-- LOGIN FORM -->
+    <!-- LOGIN -->
     <div id="login-form">
       <div class="form-row">
         <label class="form-label">Email</label>
@@ -495,12 +330,11 @@
         Forgot password? <a href="#" onclick="resetPassword();return false" style="color:var(--orange)">Reset via email</a>
       </p>
     </div>
-
-    <!-- REGISTER FORM -->
+    <!-- REGISTER -->
     <div id="register-form" style="display:none">
       <div class="form-row">
-        <label class="form-label">I am a...</label>
-        <div style="display:flex;gap:10px">
+        <label class="form-label">I am a... *</label>
+        <div class="role-selector">
           <div class="skill-toggle selected" id="role-student" onclick="setRole('student')">Student</div>
           <div class="skill-toggle" id="role-host" onclick="setRole('host')">Host / Organiser</div>
         </div>
@@ -515,15 +349,16 @@
         <label class="form-label">College</label>
         <input class="form-input" id="reg-college" placeholder="e.g. GLS University, Ahmedabad">
       </div>
-      <div class="form-row" id="reg-area-row">
-        <label class="form-label">Your Area</label>
+      <div class="form-row">
+        <label class="form-label">Your Area *</label>
         <input class="form-input" id="reg-area" placeholder="e.g. Navrangpura, Ahmedabad">
         <div class="form-hint">Used to match you with nearby gigs</div>
       </div>
       <div class="form-row"><label class="form-label">Password *</label><input class="form-input" id="reg-password" type="password" placeholder="Min 8 characters"></div>
       <div class="form-row" id="reg-skills-row">
-        <label class="form-label">Your Skills</label>
+        <label class="form-label">Your Skills *</label>
         <div class="skill-select-grid" id="reg-skills"></div>
+        <div class="form-hint">Select all that apply</div>
       </div>
       <button class="submit-btn" id="register-btn" onclick="registerUser()">Create Account →</button>
     </div>
@@ -534,168 +369,149 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════
-// INIT SUPABASE
-// ═══════════════════════════════════
+// ─── CONFIG — REPLACE THESE WITH YOUR VALUES ───────────────────────
+const SUPABASE_URL     = 'https://yusfzfukxvvtbtccjhin.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1c2Z6ZnVreHZ2dGJ0Y2NqaGluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjY1NjgsImV4cCI6MjA5MDYwMjU2OH0.O82OTc4tiepjU1s5M1gfYNXQeOEC7lbtfkl24gzXnQ4';
+// ───────────────────────────────────────────────────────────────────
+
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ═══════════════════════════════════
-// STATE
-// ═══════════════════════════════════
-let currentUser = null;
+// ─── STATE ───────────────────────────────────────────────────────────
+let currentUser    = null;
 let currentProfile = null;
-let allGigs = [];
-let allStudents = [];
-let activeEventFilter = 'All';
+let allGigs        = [];
+let allStudents    = [];
+let regRole        = 'student';
+let activeEventFilter   = 'All';
 let activeStudentFilter = 'All Skills';
-let regRole = 'student';
 
 const SKILLS = ['Decoration','Photography','Event Mgmt','Catering','DJ / Music','Logistics','Design','Security'];
 const AVATAR_COLORS = ['#F97316','#8B5CF6','#3B82F6','#10B981','#EC4899','#F59E0B','#06B6D4','#EF4444'];
 const BANNERS = { Decoration:'🎊', Photography:'📸', 'Event Management':'🎪', Catering:'🍽️', 'Music / DJ':'🎵', Logistics:'📦', Security:'🔒', Other:'⭐' };
-const BANNER_COLORS = { Decoration:'#FFF3E0', Photography:'#EDE9FE', 'Event Management':'#FFF0F6', Catering:'#F0FFF4', 'Music / DJ':'#FFF7F0', Logistics:'#FFFBEB', Security:'#F1F5F9', Other:'#F0F9FF' };
+const BANNER_BG = { Decoration:'#FFF3E0', Photography:'#EDE9FE', 'Event Management':'#FFF0F6', Catering:'#F0FFF4', 'Music / DJ':'#FFF7F0', Logistics:'#FFFBEB', Security:'#F1F5F9', Other:'#F0F9FF' };
 
-// ═══════════════════════════════════
-// APP INIT
-// ═══════════════════════════════════
+// ─── INIT ─────────────────────────────────────────────────────────────
 async function init() {
   buildSkillToggles('reg-skills');
   buildSkillToggles('host-skills');
 
-  // Check existing session
   const { data: { session } } = await sb.auth.getSession();
-  if (session) await handleSession(session);
+  if (session) {
+    currentUser = session.user;
+    await loadProfile();
+    updateNavForUser();
+  }
 
-  // Listen for auth changes
   sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) await handleSession(session);
-    if (event === 'SIGNED_OUT') handleSignOut();
+    if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+      const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+      currentProfile = data;
+      updateNavForUser();
+    }
+    if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      currentProfile = null;
+      updateNavForGuest();
+    }
   });
 
   await Promise.all([loadGigs(), loadStudents(), loadStats()]);
 }
 
-async function handleSession(session) {
-  currentUser = session.user;
-  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  currentProfile = data;
-  updateNavForUser();
-}
-
-function handleSignOut() {
-  currentUser = null;
-  currentProfile = null;
-  updateNavForGuest();
-}
-
-// ═══════════════════════════════════
-// NAV STATE
-// ═══════════════════════════════════
+// ─── NAV ──────────────────────────────────────────────────────────────
 function updateNavForUser() {
-  const nr = document.getElementById('nav-right');
+  if (!currentUser) return;
   const initials = currentProfile
-    ? (currentProfile.first_name?.[0] || '') + (currentProfile.last_name?.[0] || '')
+    ? (currentProfile.first_name?.[0]||'') + (currentProfile.last_name?.[0]||'')
     : currentUser.email?.[0]?.toUpperCase() || '?';
-  nr.innerHTML = `
-    <div class="nav-user">
+
+  document.getElementById('nav-right').innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px">
       <div class="nav-avatar" onclick="showPage('profile')">${initials}</div>
       <button class="btn-ghost" onclick="logout()">Log Out</button>
     </div>`;
+
   document.getElementById('tab-profile').style.display = 'block';
 
+  // Only show Post a Gig for hosts
   const isHost = currentProfile?.role === 'host';
-
-  // Show Post a Gig tab only for hosts
-  document.getElementById('tab-host').style.display = isHost ? 'block' : 'none';
-  document.getElementById('nav-host').style.display = isHost ? 'block' : 'none';
-
-  // Show host form or gate based on role
-  document.getElementById('host-gate').style.display = 'none';
-  document.getElementById('host-form').style.display = isHost ? 'block' : 'none';
+  document.getElementById('tab-host').style.display  = isHost ? 'block' : 'none';
+  document.getElementById('nav-host').style.display  = isHost ? 'block' : 'none';
 }
+
 function updateNavForGuest() {
   document.getElementById('nav-right').innerHTML = `
     <button class="btn-ghost" onclick="openAuthModal('login')">Log In</button>
     <button class="btn-orange" onclick="openAuthModal('register')">Register Free</button>`;
   document.getElementById('tab-profile').style.display = 'none';
-  document.getElementById('host-gate').style.display = 'block';
-  document.getElementById('host-form').style.display = 'none';
+  document.getElementById('tab-host').style.display    = 'none';
+  document.getElementById('nav-host').style.display    = 'none';
 }
 
-// ═══════════════════════════════════
-// LOAD DATA FROM SUPABASE
-// ═══════════════════════════════════
+// ─── LOAD DATA ────────────────────────────────────────────────────────
 async function loadGigs() {
-  const { data, error } = await sb
-    .from('gigs')
+  const { data } = await sb.from('gigs')
     .select('*, profiles(first_name, last_name)')
-    .eq('status', 'open')
+    .eq('status','open')
     .order('is_featured', { ascending: false })
-    .order('created_at', { ascending: false })
+    .order('created_at',  { ascending: false })
     .limit(50);
-
-  if (error) { console.error(error); return; }
   allGigs = data || [];
-  renderGigs('home-events', allGigs.slice(0, 3));
-  renderGigs('all-events', allGigs);
+  renderGigs('home-events', allGigs.slice(0,3));
+  renderGigs('all-events',  allGigs);
 }
 
 async function loadStudents() {
-  const { data, error } = await sb
-    .from('profiles')
-    .select('*')
-    .eq('role', 'student')
+  const { data } = await sb.from('profiles')
+    .select('*').eq('role','student')
     .order('rating', { ascending: false })
     .limit(50);
-
-  if (error) { console.error(error); return; }
   allStudents = data || [];
-  renderStudents('home-students', allStudents.slice(0, 4));
-  renderStudents('all-students', allStudents);
+  renderStudents('home-students', allStudents.slice(0,4));
+  renderStudents('all-students',  allStudents);
 }
 
 async function loadStats() {
   const [{ count: sc }, { count: gc }] = await Promise.all([
-    sb.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
-    sb.from('gigs').select('*', { count: 'exact', head: true })
+    sb.from('profiles').select('*', { count:'exact', head:true }).eq('role','student'),
+    sb.from('gigs').select('*',    { count:'exact', head:true })
   ]);
   document.getElementById('stat-students').textContent = sc || 0;
-  document.getElementById('stat-gigs').textContent = (gc || 0) + '+';
+  document.getElementById('stat-gigs').textContent     = (gc||0) + '+';
 }
 
-// ═══════════════════════════════════
-// RENDER FUNCTIONS
-// ═══════════════════════════════════
+// ─── RENDER ───────────────────────────────────────────────────────────
 function getCatKey(cat) {
   if (!cat) return 'Other';
-  for (const k of Object.keys(BANNERS)) { if (cat.toLowerCase().includes(k.toLowerCase())) return k; }
+  for (const k of Object.keys(BANNERS)) {
+    if (cat.toLowerCase().includes(k.toLowerCase())) return k;
+  }
   return 'Other';
 }
 
-function renderGigs(containerId, gigs) {
-  const el = document.getElementById(containerId);
-  if (!gigs || gigs.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No gigs posted yet. Be the first!</p></div>';
+function renderGigs(id, gigs) {
+  const el = document.getElementById(id);
+  if (!gigs || !gigs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No gigs posted yet.</p></div>';
     return;
   }
-  const tagClasses = ['tag-orange','tag-green','tag-blue','tag-purple'];
+  const tagC = ['tag-orange','tag-green','tag-blue','tag-purple'];
   el.innerHTML = gigs.map(g => {
-    const catKey = getCatKey(g.category);
-    const emoji = BANNERS[catKey] || '⭐';
-    const bg = BANNER_COLORS[catKey] || '#F0F9FF';
-    const skills = (g.skills_required || []).slice(0,3).map((s,i) => `<span class="tag ${tagClasses[i%4]}">${s}</span>`).join('');
-    const host = g.profiles ? `${g.profiles.first_name} ${g.profiles.last_name}` : 'Host';
-    const featured = g.is_featured ? '<span style="position:absolute;top:10px;right:10px;background:#F97316;color:#fff;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600">FEATURED</span>' : '';
-    const spotsLeft = Math.max(0, (g.students_needed || 1) - (g.applications_count || 0));
-    return `<div class="event-card" onclick="openGigDetail('${g.id}')">
-      <div class="event-banner" style="background:${bg}">${emoji}${featured}<span class="event-type-badge">${g.category || 'Event'}</span></div>
+    const ck    = getCatKey(g.category);
+    const tags  = (g.skills_required||[]).slice(0,3).map((s,i)=>`<span class="tag ${tagC[i%4]}">${s}</span>`).join('');
+    const host  = g.profiles ? `${g.profiles.first_name} ${g.profiles.last_name}` : 'Host';
+    const spots = Math.max(0,(g.students_needed||1)-(g.applications_count||0));
+    const feat  = g.is_featured ? '<span style="position:absolute;top:10px;right:10px;background:#F97316;color:#fff;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600">FEATURED</span>' : '';
+    return `<div class="event-card">
+      <div class="event-banner" style="background:${BANNER_BG[ck]||'#F0F9FF'}">${BANNERS[ck]||'⭐'}${feat}<span class="event-type-badge">${g.category||'Event'}</span></div>
       <div class="event-body">
         <div class="event-title">${g.title}</div>
-        <div class="event-meta">${host} · ${g.event_date ? new Date(g.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD'} · 📍 ${g.location || ''}</div>
-        <div class="event-tags">${skills || '<span class="tag tag-orange">General</span>'}</div>
+        <div class="event-meta">${host} · ${g.event_date ? new Date(g.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD'} · 📍 ${g.location||''}</div>
+        <div class="event-tags">${tags||'<span class="tag tag-orange">General</span>'}</div>
         <div class="event-footer">
-          <div><div class="budget">₹${Number(g.budget).toLocaleString('en-IN')}</div><div class="spots">${spotsLeft} spot${spotsLeft!==1?'s':''} left</div></div>
+          <div><div class="budget">₹${Number(g.budget).toLocaleString('en-IN')}</div><div class="spots">${spots} spot${spots!==1?'s':''} left</div></div>
           <button class="apply-btn" onclick="event.stopPropagation();applyToGig('${g.id}','${g.title.replace(/'/g,"\\'")}')">Apply Now</button>
         </div>
       </div>
@@ -703,71 +519,52 @@ function renderGigs(containerId, gigs) {
   }).join('');
 }
 
-function renderStudents(containerId, students) {
-  const el = document.getElementById(containerId);
-  if (!students || students.length === 0) {
+function renderStudents(id, students) {
+  const el = document.getElementById(id);
+  if (!students || !students.length) {
     el.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No students registered yet.</p></div>';
     return;
   }
-  el.innerHTML = students.map((s, i) => {
-    const initials = (s.first_name?.[0] || '') + (s.last_name?.[0] || '?');
-    const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
-    const skills = (s.skills || []).slice(0,3).map(sk => `<span class="skill-chip">${sk}</span>`).join('');
-    const rating = s.rating ? Number(s.rating).toFixed(1) : 'New';
+  el.innerHTML = students.map((s,i) => {
+    const initials = (s.first_name?.[0]||'') + (s.last_name?.[0]||'?');
+    const skills   = (s.skills||[]).slice(0,3).map(sk=>`<span class="skill-chip">${sk}</span>`).join('');
     return `<div class="student-card">
-      <div class="avatar" style="background:${color}">${initials}</div>
+      <div class="avatar" style="background:${AVATAR_COLORS[i%AVATAR_COLORS.length]}">${initials}</div>
       <div class="student-name">${s.first_name} ${s.last_name}</div>
-      <div class="student-college">${s.college || s.area || ''}</div>
+      <div class="student-college">${s.college||s.area||''}</div>
       <div class="skill-chips">${skills}</div>
-      <div class="rating"><span class="star">★</span>${rating} · ${s.gigs_completed || 0} gigs</div>
+      <div class="rating"><span class="star">★</span>${s.rating ? Number(s.rating).toFixed(1) : 'New'} · ${s.gigs_completed||0} gigs</div>
     </div>`;
   }).join('');
 }
 
-// ═══════════════════════════════════
-// GIG DETAIL & APPLY
-// ═══════════════════════════════════
-async function openGigDetail(gigId) {
-  if (!currentUser) { openAuthModal('login'); showToast('Please log in to view gig details'); return; }
-  const gig = allGigs.find(g => g.id === gigId);
-  if (!gig) return;
-  showToast(`Viewing: ${gig.title}`);
-}
-
+// ─── APPLY TO GIG ─────────────────────────────────────────────────────
 async function applyToGig(gigId, gigTitle) {
-  if (!currentUser) { openAuthModal('login'); showToast('Please log in to apply'); return; }
-  if (currentProfile?.role === 'host') { showToast('Hosts cannot apply to gigs', true); return; }
+  if (!currentUser) { openAuthModal('login'); showToast('Please log in to apply', true); return; }
+  if (currentProfile?.role === 'host') { showToast('Hosts cannot apply to gigs. Switch to a student account.', true); return; }
 
-  // Check if already applied
-  const { data: existing } = await sb.from('applications').select('id').eq('gig_id', gigId).eq('student_id', currentUser.id).single();
+  const { data: existing } = await sb.from('applications')
+    .select('id').eq('gig_id', gigId).eq('student_id', currentUser.id).maybeSingle();
   if (existing) { showToast('You already applied to this gig!', true); return; }
 
-  const { error } = await sb.from('applications').insert({
-    gig_id: gigId,
-    student_id: currentUser.id,
-    status: 'applied'
-  });
-
+  const { error } = await sb.from('applications').insert({ gig_id: gigId, student_id: currentUser.id, status: 'applied' });
   if (error) { showToast('Error applying: ' + error.message, true); return; }
-  showToast(`✅ Applied to "${gigTitle}"! Host will review your profile.`);
-
-  // Re-render to update UI
+  showToast(`✅ Applied to "${gigTitle}"! The host will review your profile.`);
   await loadGigs();
 }
 
-// ═══════════════════════════════════
-// POST GIG
-// ═══════════════════════════════════
+// ─── POST GIG ─────────────────────────────────────────────────────────
 async function postGig() {
-  if (!currentUser) { openAuthModal('login'); return; }
+  if (!currentUser)                     { openAuthModal('login'); return; }
+  if (currentProfile?.role !== 'host')  { showToast('Only hosts can post gigs.', true); return; }
 
-  const title = document.getElementById('h-title').value.trim();
-  const cat = document.getElementById('h-cat').value;
-  const date = document.getElementById('h-date').value;
-  const loc = document.getElementById('h-loc').value.trim();
+  const title  = document.getElementById('h-title').value.trim();
+  const cat    = document.getElementById('h-cat').value;
+  const date   = document.getElementById('h-date').value;
+  const loc    = document.getElementById('h-loc').value.trim();
   const budget = document.getElementById('h-budget').value;
-  const count = document.getElementById('h-count').value;
-  const desc = document.getElementById('h-desc').value.trim();
+  const count  = document.getElementById('h-count').value;
+  const desc   = document.getElementById('h-desc').value.trim();
   const skills = [...document.querySelectorAll('#host-skills .skill-toggle.selected')].map(e => e.textContent);
 
   if (!title || !cat || !date || !loc || !budget || !count) {
@@ -776,105 +573,107 @@ async function postGig() {
 
   const btn = document.getElementById('post-gig-btn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
+  btn.innerHTML = '<span class="spinner"></span> Posting...';
 
   const { error } = await sb.from('gigs').insert({
-    host_id: currentUser.id,
-    title, category: cat,
-    event_date: date,
-    location: loc,
-    budget: Number(budget),
-    students_needed: Number(count),
-    description: desc,
-    skills_required: skills,
-    status: 'open',
-    is_featured: false
+    host_id: currentUser.id, title, category: cat,
+    event_date: date, location: loc,
+    budget: Number(budget), students_needed: Number(count),
+    description: desc, skills_required: skills,
+    status: 'open', is_featured: false
   });
 
   btn.disabled = false;
   btn.textContent = 'Post Gig →';
 
   if (error) { showToast('Error posting gig: ' + error.message, true); return; }
-  showToast('🎉 Gig posted! Students will be notified.');
-  // Reset form
-  ['h-title','h-date','h-loc','h-budget','h-count','h-desc'].forEach(id => document.getElementById(id).value = '');
+
+  showToast('🎉 Gig posted! Students will see it now.');
+  ['h-title','h-date','h-loc','h-budget','h-count','h-desc'].forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('h-cat').value = '';
   document.querySelectorAll('#host-skills .skill-toggle').forEach(e => e.classList.remove('selected'));
   await loadGigs();
   showPage('events');
 }
 
-// ═══════════════════════════════════
-// AUTH
-// ═══════════════════════════════════
+// ─── AUTH ─────────────────────────────────────────────────────────────
 function openAuthModal(tab) {
   document.getElementById('auth-modal').classList.add('active');
   switchModalTab(tab || 'login');
 }
+
 function closeAuthModal() {
   document.getElementById('auth-modal').classList.remove('active');
 }
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('auth-modal')) closeAuthModal();
+}
+
 function switchModalTab(tab) {
-  document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('login-form').style.display    = tab === 'login'    ? 'block' : 'none';
   document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
-  document.getElementById('mt-login').classList.toggle('active', tab === 'login');
+  document.getElementById('mt-login').classList.toggle('active',    tab === 'login');
   document.getElementById('mt-register').classList.toggle('active', tab === 'register');
 }
+
 function setRole(role) {
   regRole = role;
   document.getElementById('role-student').classList.toggle('selected', role === 'student');
-  document.getElementById('role-host').classList.toggle('selected', role === 'host');
+  document.getElementById('role-host').classList.toggle('selected',    role === 'host');
   document.getElementById('reg-college-row').style.display = role === 'student' ? 'block' : 'none';
-  document.getElementById('reg-skills-row').style.display = role === 'student' ? 'block' : 'none';
+  document.getElementById('reg-skills-row').style.display  = role === 'student' ? 'block' : 'none';
 }
 
 async function login() {
-  const email = document.getElementById('login-email').value.trim();
+  const email    = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
-  if (!email || !password) { showToast('Enter email and password', true); return; }
+  if (!email || !password) { showToast('Enter your email and password', true); return; }
 
   const btn = document.getElementById('login-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Logging in...';
 
   const { error } = await sb.auth.signInWithPassword({ email, password });
-  btn.disabled = false; btn.textContent = 'Log In';
 
-  if (error) { showToast(error.message, true); return; }
+  btn.disabled = false; btn.textContent = 'Log In';
+  if (error) { showToast('Incorrect email or password. Please try again.', true); return; }
+
   closeAuthModal();
   showToast('Welcome back! 👋');
   showPage('profile');
 }
 
 async function registerUser() {
-  const fname = document.getElementById('reg-fname').value.trim();
-  const lname = document.getElementById('reg-lname').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const phone = document.getElementById('reg-phone').value.trim();
-  const college = document.getElementById('reg-college').value.trim();
-  const area = document.getElementById('reg-area').value.trim();
+  const fname    = document.getElementById('reg-fname').value.trim();
+  const lname    = document.getElementById('reg-lname').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const phone    = document.getElementById('reg-phone').value.trim();
+  const college  = document.getElementById('reg-college').value.trim();
+  const area     = document.getElementById('reg-area').value.trim();
   const password = document.getElementById('reg-password').value;
-  const skills = [...document.querySelectorAll('#reg-skills .skill-toggle.selected')].map(e => e.textContent);
+  const skills   = [...document.querySelectorAll('#reg-skills .skill-toggle.selected')].map(e => e.textContent);
 
-  if (!fname || !lname || !email || !phone || !password) {
-    showToast('Please fill all required fields', true); return;
+  if (!fname || !lname || !email || !phone || !area || !password) {
+    showToast('Please fill in all required fields', true); return;
   }
   if (password.length < 8) {
     showToast('Password must be at least 8 characters', true); return;
   }
+  if (regRole === 'student' && skills.length === 0) {
+    showToast('Please select at least one skill', true); return;
+  }
 
   const btn = document.getElementById('register-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Creating account...';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creating account...';
 
-  // Step 1: Sign up
+  // Sign up with Supabase Auth
   const { data, error } = await sb.auth.signUp({ email, password });
 
   if (error) {
     btn.disabled = false; btn.textContent = 'Create Account →';
     const msg = error.message.toLowerCase();
-    if (msg.includes('already') || msg.includes('registered') ||
-        msg.includes('taken') || msg.includes('exists') ||
-        msg.includes('duplicate') || error.status === 400 || error.status === 422) {
+    if (msg.includes('already') || msg.includes('registered') || msg.includes('taken') ||
+        msg.includes('exists')  || msg.includes('duplicate')  || error.status === 400 || error.status === 422) {
       showToast('This email is already registered. Please log in instead.', true);
     } else {
       showToast(error.message, true);
@@ -882,43 +681,33 @@ async function registerUser() {
     return;
   }
 
-  // Step 2: Check if user object came back
   if (!data?.user?.id) {
     btn.disabled = false; btn.textContent = 'Create Account →';
-    showToast('Account created! Please check your email to confirm, then log in.', false);
-    closeAuthModal();
-    return;
+    showToast('Account created! Please check your email to confirm, then log in.');
+    closeAuthModal(); return;
   }
 
-  const userId = data.user.id;
-
-  // Step 3: Set session manually so RLS knows who we are
+  // Set the session so RLS policies recognise the user
   if (data.session) {
     await sb.auth.setSession({
-      access_token: data.session.access_token,
+      access_token:  data.session.access_token,
       refresh_token: data.session.refresh_token
     });
   }
 
-  // Step 4: Wait for session to settle
+  // Give Supabase Auth a moment to settle
   await new Promise(r => setTimeout(r, 1500));
 
-  // Step 5: Insert profile
   const profileData = {
-    id: userId,
-    first_name: fname,
-    last_name: lname,
-    email: email,
-    phone: phone,
-    college: college,
-    area: area,
+    id: data.user.id,
+    first_name: fname, last_name: lname,
+    email, phone, college, area,
     role: regRole,
     skills: regRole === 'student' ? skills : [],
-    gigs_completed: 0,
-    plan: 'free',
-    gigs_posted_this_month: 0
+    gigs_completed: 0, plan: 'free', gigs_posted_this_month: 0
   };
 
+  // upsert — creates if missing, updates if already there
   const { error: profileError } = await sb
     .from('profiles')
     .upsert(profileData, { onConflict: 'id' });
@@ -927,55 +716,14 @@ async function registerUser() {
 
   if (profileError) {
     console.error('Profile error:', profileError.message);
-    showToast('Account created but profile setup failed. Please log in again.', true);
-    closeAuthModal();
-    return;
+    showToast('Account created but profile setup had an issue. Please log in.', true);
+    closeAuthModal(); return;
   }
 
-  currentUser = data.user;
-  currentProfile = { ...profileData };
-  showToast(`Welcome ${fname}! Account created successfully. 🎉`);
-  closeAuthModal();
-  updateNavForUser();
-  showPage('profile');
-}
-  const userId = data.user.id;
+  currentUser    = data.user;
+  currentProfile = profileData;
 
-  // Step 2: Wait for Supabase auth to settle
-  await new Promise(r => setTimeout(r, 1500));
-
-  // Step 3: Create profile row with upsert (insert or update if exists)
-  const profileData = {
-    id: userId,
-    first_name: fname,
-    last_name: lname,
-    email: email,
-    phone: phone,
-    college: college,
-    area: area,
-    role: regRole,
-    skills: regRole === 'student' ? skills : [],
-    gigs_completed: 0,
-    plan: 'free',
-    gigs_posted_this_month: 0
-  };
-
-  const { error: profileError } = await sb
-    .from('profiles')
-    .upsert(profileData, { onConflict: 'id' });
-
-  btn.disabled = false; btn.textContent = 'Create Account →';
-
-  if (profileError) {
-    console.error('Profile creation failed:', profileError.message);
-    // Auth worked but profile failed — still let them in, retry profile
-    await sb.from('profiles').upsert(profileData, { onConflict: 'id' });
-    showToast(`Welcome ${fname}! Account created.`);
-  } else {
-    showToast(`🎉 Welcome, ${fname}! Account created successfully.`);
-  }
-
-  currentProfile = { ...profileData };
+  showToast(`🎉 Welcome, ${fname}! Account created successfully.`);
   closeAuthModal();
   updateNavForUser();
   showPage('profile');
@@ -983,211 +731,151 @@ async function registerUser() {
 
 async function logout() {
   await sb.auth.signOut();
-  showToast('Logged out successfully');
+  currentUser = null; currentProfile = null;
+  updateNavForGuest();
+  showToast('Logged out successfully.');
   showPage('home');
 }
 
 async function resetPassword() {
   const email = document.getElementById('login-email').value.trim();
   if (!email) { showToast('Enter your email first', true); return; }
-  await sb.auth.resetPasswordForEmail(email);
-  showToast('Password reset email sent! Check your inbox.');
+  await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+  showToast('Password reset link sent! Check your inbox.');
 }
 
-// ═══════════════════════════════════
-// PROFILE / DASHBOARD
-// ═══════════════════════════════════
+// ─── PROFILE / DASHBOARD ──────────────────────────────────────────────
 async function loadProfile() {
   if (!currentUser) { showPage('home'); openAuthModal('login'); return; }
 
+  // Refresh profile from DB
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (data) currentProfile = data;
+
   const container = document.getElementById('profile-content');
-  container.innerHTML = '<div class="loading-state">Loading dashboard...</div>';
-
-  // Load applications
-  const { data: apps } = await sb.from('applications')
-    .select('*, gigs(title, event_date, location, budget)')
-    .eq('student_id', currentUser.id)
-    .order('created_at', { ascending: false })
-    .limit(10);
-
-  // Load posted gigs if host
-  let postedGigs = [];
-  if (currentProfile?.role === 'host') {
-    const { data } = await sb.from('gigs').select('*, applications(count)').eq('host_id', currentUser.id).order('created_at', { ascending: false });
-    postedGigs = data || [];
+  if (!currentProfile) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Profile not found. Please log out and register again.</p></div>';
+    return;
   }
 
-  const p = currentProfile || {};
-  const initials = (p.first_name?.[0] || '') + (p.last_name?.[0] || '?');
-  const skillTags = (p.skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('');
-  const isHost = p.role === 'host';
-  const planBadge = p.plan === 'pro' ? '<span class="plan-badge premium-badge">⭐ Pro</span>' : '<span class="plan-badge">Free</span>';
+  const p        = currentProfile;
+  const initials = (p.first_name?.[0]||'') + (p.last_name?.[0]||'?');
+  const isHost   = p.role === 'host';
+  const skillTags = (p.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('');
 
-  let dashboardHTML = `
+  // Load applications or posted gigs
+  let applications = [], postedGigs = [];
+  if (!isHost) {
+    const { data: apps } = await sb.from('applications')
+      .select('*, gigs(title, event_date, location, budget)')
+      .eq('student_id', currentUser.id)
+      .order('created_at', { ascending: false }).limit(20);
+    applications = apps || [];
+  } else {
+    const { data: gigs } = await sb.from('gigs')
+      .select('*').eq('host_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    postedGigs = gigs || [];
+  }
+
+  container.innerHTML = `
     <div style="margin-bottom:1.5rem">
       <div class="dashboard-grid">
-        <div class="stat-card"><div class="stat-icon" style="background:#FFF7F0">💼</div><div class="stat-num">${p.gigs_completed || 0}</div><div class="stat-lbl">Gigs Completed</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#FFF7F0">💼</div><div class="stat-num">${p.gigs_completed||0}</div><div class="stat-lbl">Gigs Completed</div></div>
         <div class="stat-card"><div class="stat-icon" style="background:#DCFCE7">⭐</div><div class="stat-num">${p.rating ? Number(p.rating).toFixed(1) : '—'}</div><div class="stat-lbl">Your Rating</div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:#DBEAFE">📩</div><div class="stat-num">${apps?.length || 0}</div><div class="stat-lbl">${isHost ? 'Gigs Posted' : 'Applications'}</div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:#EDE9FE">📋</div><div class="stat-num">${p.plan === 'pro' ? '∞' : (2 - (p.gigs_posted_this_month||0))}</div><div class="stat-lbl">${isHost ? 'Gigs Left (mo)' : 'Active Gigs'}</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#DBEAFE">📩</div><div class="stat-num">${isHost ? postedGigs.length : applications.length}</div><div class="stat-lbl">${isHost ? 'Gigs Posted' : 'Applications'}</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#EDE9FE">🎯</div><div class="stat-num">${isHost ? 'Host' : 'Student'}</div><div class="stat-lbl">Account Type</div></div>
       </div>
     </div>
     <div class="profile-layout">
       <div class="profile-sidebar">
         <div class="profile-avatar">${initials}</div>
-        <div class="profile-name">${p.first_name || ''} ${p.last_name || ''} ${planBadge}</div>
-        <div class="profile-sub">${p.college || p.role || ''}</div>
-        <div class="profile-sub" style="margin-top:4px">📍 ${p.area || 'Location not set'}</div>
+        <div class="profile-name">${p.first_name||''} ${p.last_name||''}</div>
+        <div class="profile-sub">${p.college||''}</div>
+        <div class="profile-sub" style="margin-top:4px">📍 ${p.area||'Location not set'}</div>
+        <div class="profile-sub" style="margin-top:4px;font-weight:600;color:var(--orange)">${isHost ? '🏢 Host / Organiser' : '🎓 Student'}</div>
         <div class="profile-stat-row">
-          <div class="profile-stat"><div class="n">${p.gigs_completed || 0}</div><div class="l">Gigs</div></div>
+          <div class="profile-stat"><div class="n">${p.gigs_completed||0}</div><div class="l">Gigs</div></div>
           <div class="profile-stat"><div class="n">${p.rating ? Number(p.rating).toFixed(1) : '—'}</div><div class="l">Rating</div></div>
-          <div class="profile-stat"><div class="n">${apps?.length || 0}</div><div class="l">${isHost ? 'Posted' : 'Applied'}</div></div>
+          <div class="profile-stat"><div class="n">${isHost ? postedGigs.length : applications.length}</div><div class="l">${isHost ? 'Posted' : 'Applied'}</div></div>
         </div>
-        ${p.role === 'student' ? `<div class="skill-tags">${skillTags || '<span style="color:var(--mid);font-size:13px">No skills added yet</span>'}</div>` : ''}
-        ${p.plan !== 'pro' ? `<button class="btn-orange" style="width:100%;margin-top:1.25rem;padding:10px;font-family:var(--dm);border-radius:9px" onclick="showPage('pricing')">Upgrade to Pro ⭐</button>` : ''}
-        <button class="btn-ghost" style="width:100%;margin-top:8px;padding:10px;font-family:var(--dm);border-radius:9px;background:transparent;border-color:var(--border);color:var(--navy)" onclick="logout()">Log Out</button>
+        ${!isHost ? `<div class="skill-tags">${skillTags||'<span style="color:var(--mid);font-size:13px">No skills added</span>'}</div>` : ''}
+        <button class="btn-ghost" style="width:100%;margin-top:1.25rem;padding:10px;font-family:var(--dm);border-radius:9px;color:var(--navy);border-color:var(--border)" onclick="logout()">Log Out</button>
       </div>
-      <div class="profile-main">`;
+      <div class="profile-main">
+        <div class="gig-history">
+          <div class="section-title" style="font-size:14px;margin-bottom:1rem">${isHost ? 'Your Posted Gigs' : 'Your Applications'}</div>
+          ${isHost ? renderPostedGigs(postedGigs) : renderApplications(applications)}
+        </div>
+      </div>
+    </div>`;
+}
 
-  if (isHost && postedGigs.length > 0) {
-    dashboardHTML += `<div class="gig-history">
-      <div class="section-title" style="font-size:14px;margin-bottom:1rem">Your Posted Gigs</div>
-      <table class="apps-table">
-        <thead><tr><th>Gig</th><th>Date</th><th>Budget</th><th>Applications</th><th>Status</th></tr></thead>
-        <tbody>
-          ${postedGigs.map(g => `<tr>
-            <td style="font-weight:500">${g.title}</td>
-            <td>${g.event_date ? new Date(g.event_date).toLocaleDateString('en-IN') : 'TBD'}</td>
-            <td>₹${Number(g.budget).toLocaleString('en-IN')}</td>
-            <td>${g.applications?.[0]?.count || 0}</td>
-            <td><span class="li-badge badge-${g.status==='open'?'green':'orange'}">${g.status}</span></td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>`;
-  } else if (!isHost) {
-    dashboardHTML += `<div class="gig-history">
-      <div class="section-title" style="font-size:14px;margin-bottom:1rem">Your Applications</div>`;
-    if (!apps || apps.length === 0) {
-      dashboardHTML += `<div class="empty-state" style="padding:2rem"><div class="icon">📭</div><p>You haven't applied to any gigs yet. <a href="#" onclick="showPage('events');return false" style="color:var(--orange)">Browse gigs →</a></p></div>`;
-    } else {
-      dashboardHTML += apps.map(a => `
-        <div class="gig-item">
-          <div class="gig-dot" style="background:#F97316"></div>
-          <div>
-            <div style="font-size:14px;font-weight:500">${a.gigs?.title || 'Gig'}</div>
-            <div style="font-size:12px;color:var(--mid)">${a.gigs?.location || ''} · ₹${a.gigs?.budget ? Number(a.gigs.budget).toLocaleString('en-IN') : ''}</div>
-          </div>
-          <span class="li-badge badge-${a.status==='accepted'?'green':a.status==='rejected'?'orange':'blue'}">${a.status}</span>
-        </div>`).join('');
-    }
-    dashboardHTML += `</div>`;
+function renderApplications(apps) {
+  if (!apps.length) return `<div class="empty-state" style="padding:2rem"><div class="icon">📭</div><p>You haven't applied to any gigs yet. <a href="#" onclick="showPage('events');return false" style="color:var(--orange)">Browse gigs →</a></p></div>`;
+  return apps.map(a => `
+    <div class="gig-item">
+      <div class="gig-dot" style="background:#F97316"></div>
+      <div>
+        <div style="font-size:14px;font-weight:500">${a.gigs?.title||'Gig'}</div>
+        <div style="font-size:12px;color:var(--mid)">${a.gigs?.location||''} · ₹${a.gigs?.budget ? Number(a.gigs.budget).toLocaleString('en-IN') : ''}</div>
+      </div>
+      <span class="li-badge badge-${a.status==='accepted'?'green':a.status==='rejected'?'orange':'blue'}">${a.status}</span>
+    </div>`).join('');
+}
+
+function renderPostedGigs(gigs) {
+  if (!gigs.length) return `<div class="empty-state" style="padding:2rem"><div class="icon">📋</div><p>You haven't posted any gigs yet. <a href="#" onclick="showPage('host');return false" style="color:var(--orange)">Post your first gig →</a></p></div>`;
+  return gigs.map(g => `
+    <div class="gig-item">
+      <div class="gig-dot" style="background:${g.status==='open'?'#10B981':'#F59E0B'}"></div>
+      <div>
+        <div style="font-size:14px;font-weight:500">${g.title}</div>
+        <div style="font-size:12px;color:var(--mid)">${g.location||''} · ₹${Number(g.budget).toLocaleString('en-IN')} · ${g.event_date ? new Date(g.event_date).toLocaleDateString('en-IN') : 'TBD'}</div>
+      </div>
+      <span class="li-badge badge-${g.status==='open'?'green':'orange'}">${g.status}</span>
+    </div>`).join('');
+}
+
+// ─── HOST GUARD ────────────────────────────────────────────────────────
+function hostPageGuard() {
+  if (!currentUser) { openAuthModal('login'); showToast('Please log in to post a gig', true); return; }
+  if (currentProfile?.role !== 'host') {
+    showToast('Only hosts can post gigs. Register as a Host / Organiser.', true); return;
   }
-
-  dashboardHTML += `</div></div>`;
-  container.innerHTML = dashboardHTML;
+  showPage('host');
 }
 
-// ═══════════════════════════════════
-// PAYMENTS — RAZORPAY
-// ═══════════════════════════════════
-function startSubscription(plan) {
-  if (!currentUser) { openAuthModal('login'); return; }
-  const options = {
-    key: RAZORPAY_KEY,
-    amount: 49900, // ₹499 in paise
-    currency: 'INR',
-    name: 'CampusGig',
-    description: 'Pro Host Plan — Monthly',
-    prefill: {
-      name: currentProfile ? `${currentProfile.first_name} ${currentProfile.last_name}` : '',
-      email: currentUser.email,
-      contact: currentProfile?.phone || ''
-    },
-    theme: { color: '#F97316' },
-    handler: async function(response) {
-      // Save subscription to DB
-      await sb.from('payments').insert({
-        user_id: currentUser.id,
-        type: 'subscription',
-        plan: plan,
-        amount: 499,
-        razorpay_payment_id: response.razorpay_payment_id,
-        status: 'completed'
-      });
-      // Upgrade plan in profile
-      await sb.from('profiles').update({ plan: 'pro' }).eq('id', currentUser.id);
-      currentProfile = { ...currentProfile, plan: 'pro' };
-      showToast('🎉 Upgraded to Pro! Unlimited gigs unlocked.');
-      showPage('profile');
-    }
-  };
-  const rzp = new Razorpay(options);
-  rzp.open();
-}
-
-function payFeatured() {
-  if (!currentUser) { openAuthModal('login'); return; }
-  const options = {
-    key: RAZORPAY_KEY,
-    amount: 19900, // ₹199 in paise
-    currency: 'INR',
-    name: 'CampusGig',
-    description: 'Featured Listing — 7 days',
-    prefill: {
-      name: currentProfile ? `${currentProfile.first_name} ${currentProfile.last_name}` : '',
-      email: currentUser.email
-    },
-    theme: { color: '#F97316' },
-    handler: async function(response) {
-      showToast('✅ Featured listing activated! Your gig is now pinned to the top.');
-      await sb.from('payments').insert({
-        user_id: currentUser.id,
-        type: 'featured',
-        amount: 199,
-        razorpay_payment_id: response.razorpay_payment_id,
-        status: 'completed'
-      });
-    }
-  };
-  new Razorpay(options).open();
-}
-
-// ═══════════════════════════════════
-// FILTER & SEARCH
-// ═══════════════════════════════════
+// ─── FILTER & SEARCH ──────────────────────────────────────────────────
 function filterChip(el, type) {
   const barId = type === 'event' ? 'event-filters' : 'student-filters';
   document.querySelectorAll(`#${barId} .chip`).forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   if (type === 'event') { activeEventFilter = el.textContent; filterEvents(); }
-  else { activeStudentFilter = el.textContent; filterStudents(); }
+  else                  { activeStudentFilter = el.textContent; filterStudents(); }
 }
 
 function filterEvents() {
-  const q = (document.getElementById('event-search')?.value || '').toLowerCase();
+  const q   = (document.getElementById('event-search')?.value||'').toLowerCase();
   const cat = activeEventFilter;
-  const filtered = allGigs.filter(g => {
-    const matchCat = cat === 'All' || (g.category || '').toLowerCase().includes(cat.toLowerCase());
-    const matchQ = !q || g.title.toLowerCase().includes(q) || (g.location || '').toLowerCase().includes(q);
-    return matchCat && matchQ;
-  });
-  renderGigs('all-events', filtered);
+  renderGigs('all-events', allGigs.filter(g => {
+    const mc = cat === 'All' || (g.category||'').toLowerCase().includes(cat.toLowerCase());
+    const mq = !q || g.title.toLowerCase().includes(q) || (g.location||'').toLowerCase().includes(q);
+    return mc && mq;
+  }));
 }
 
 function filterStudents() {
-  const q = (document.getElementById('student-search')?.value || '').toLowerCase();
+  const q     = (document.getElementById('student-search')?.value||'').toLowerCase();
   const skill = activeStudentFilter;
-  const filtered = allStudents.filter(s => {
-    const matchSkill = skill === 'All Skills' || (s.skills || []).some(sk => sk.toLowerCase().includes(skill.toLowerCase()));
-    const matchQ = !q || `${s.first_name} ${s.last_name}`.toLowerCase().includes(q) || (s.skills || []).some(sk => sk.toLowerCase().includes(q));
-    return matchSkill && matchQ;
-  });
-  renderStudents('all-students', filtered);
+  renderStudents('all-students', allStudents.filter(s => {
+    const ms = skill === 'All Skills' || (s.skills||[]).some(sk => sk.toLowerCase().includes(skill.toLowerCase()));
+    const mq = !q || `${s.first_name} ${s.last_name}`.toLowerCase().includes(q) || (s.skills||[]).some(sk => sk.toLowerCase().includes(q));
+    return ms && mq;
+  }));
 }
 
-// ═══════════════════════════════════
-// SKILL TOGGLES
-// ═══════════════════════════════════
+// ─── SKILL TOGGLES ────────────────────────────────────────────────────
 function buildSkillToggles(containerId) {
   const c = document.getElementById(containerId);
   if (!c) return;
@@ -1200,45 +888,23 @@ function buildSkillToggles(containerId) {
   });
 }
 
-// ═══════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════
-const PAGE_TABS = { home:0, events:1, students:2, host:3, pricing:5 };
-function hostPageGuard() {
-  if (!currentUser) {
-    openAuthModal('login');
-    showToast('Please log in to post a gig', true);
-    return;
-  }
-  if (currentProfile?.role !== 'host') {
-    showToast('Only hosts can post gigs. Register as a Host/Organiser to post.', true);
-    return;
-  }
-  showPage('host');
-}
-  
+// ─── NAVIGATION ───────────────────────────────────────────────────────
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
 
   const pg = document.getElementById(id);
   if (pg) pg.classList.add('active');
 
-  const tabs = document.querySelectorAll('.tab');
-  if (id === 'profile') { const t = document.getElementById('tab-profile'); if(t) t.classList.add('active'); }
-  else if (PAGE_TABS[id] !== undefined) { if (tabs[PAGE_TABS[id]]) tabs[PAGE_TABS[id]].classList.add('active'); }
-
-  const navLink = document.getElementById('nav-' + id);
-  if (navLink) navLink.classList.add('active');
+  const tabMap = { home:'tab-home', events:'tab-events', students:'tab-students', host:'tab-host', profile:'tab-profile' };
+  const tab = document.getElementById(tabMap[id]);
+  if (tab) tab.classList.add('active');
 
   if (id === 'profile') loadProfile();
   window.scrollTo(0, 0);
 }
 
-// ═══════════════════════════════════
-// TOAST
-// ═══════════════════════════════════
+// ─── TOAST ────────────────────────────────────────────────────────────
 let toastTimer;
 function showToast(msg, isError = false) {
   const t = document.getElementById('toast');
@@ -1249,98 +915,84 @@ function showToast(msg, isError = false) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// Close modal on overlay click
-document.getElementById('auth-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeAuthModal();
-});
-
-// ═══════════════════════════════════
-// START
-// ═══════════════════════════════════
+// ─── START ────────────────────────────────────────────────────────────
 init();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════
-     SUPABASE SETUP GUIDE
-     ════════════════════════════════════════════════════
+<!--
+═══════════════════════════════════════════════════════
+  SUPABASE SQL SETUP — run these in SQL Editor one by one
+═══════════════════════════════════════════════════════
 
-  Run these SQL queries in Supabase → SQL Editor → New Query:
+-- 1. PROFILES
+create table if not exists profiles (
+  id uuid references auth.users primary key,
+  first_name text, last_name text, email text, phone text,
+  college text, area text, role text default 'student',
+  skills text[] default '{}', rating numeric(3,2),
+  gigs_completed int default 0, plan text default 'free',
+  gigs_posted_this_month int default 0,
+  created_at timestamptz default now()
+);
 
-  -- 1. PROFILES TABLE
-  create table profiles (
-    id uuid references auth.users primary key,
-    first_name text, last_name text,
-    email text, phone text,
-    college text, area text,
-    role text default 'student',
-    skills text[] default '{}',
-    rating numeric(3,2),
-    gigs_completed int default 0,
-    plan text default 'free',
-    gigs_posted_this_month int default 0,
-    created_at timestamptz default now()
-  );
+-- 2. GIGS
+create table if not exists gigs (
+  id uuid default gen_random_uuid() primary key,
+  host_id uuid references profiles(id),
+  title text not null, category text, event_date date,
+  location text, budget numeric, students_needed int default 1,
+  description text, skills_required text[] default '{}',
+  status text default 'open', is_featured boolean default false,
+  applications_count int default 0,
+  created_at timestamptz default now()
+);
 
-  -- 2. GIGS TABLE
-  create table gigs (
-    id uuid default gen_random_uuid() primary key,
-    host_id uuid references profiles(id),
-    title text not null,
-    category text,
-    event_date date,
-    location text,
-    budget numeric,
-    students_needed int default 1,
-    description text,
-    skills_required text[] default '{}',
-    status text default 'open',
-    is_featured boolean default false,
-    applications_count int default 0,
-    created_at timestamptz default now()
-  );
+-- 3. APPLICATIONS
+create table if not exists applications (
+  id uuid default gen_random_uuid() primary key,
+  gig_id uuid references gigs(id),
+  student_id uuid references profiles(id),
+  status text default 'applied',
+  created_at timestamptz default now(),
+  unique(gig_id, student_id)
+);
 
-  -- 3. APPLICATIONS TABLE
-  create table applications (
-    id uuid default gen_random_uuid() primary key,
-    gig_id uuid references gigs(id),
-    student_id uuid references profiles(id),
-    status text default 'applied',
-    created_at timestamptz default now(),
-    unique(gig_id, student_id)
-  );
+-- 4. ENABLE RLS
+alter table profiles     enable row level security;
+alter table gigs         enable row level security;
+alter table applications enable row level security;
 
-  -- 4. PAYMENTS TABLE
-  create table payments (
-    id uuid default gen_random_uuid() primary key,
-    user_id uuid references profiles(id),
-    type text,
-    plan text,
-    amount numeric,
-    razorpay_payment_id text,
-    status text,
-    created_at timestamptz default now()
-  );
+-- 5. PROFILES POLICIES
+drop policy if exists "Public read profiles"  on profiles;
+drop policy if exists "Insert own profile"    on profiles;
+drop policy if exists "Update own profile"    on profiles;
+create policy "Public read profiles" on profiles for select using (true);
+create policy "Insert own profile"   on profiles for insert with check (true);
+create policy "Update own profile"   on profiles for update using (auth.uid() = id);
 
-  -- 5. ENABLE ROW LEVEL SECURITY
-  alter table profiles enable row level security;
-  alter table gigs enable row level security;
-  alter table applications enable row level security;
-  alter table payments enable row level security;
+-- 6. GIGS POLICIES
+drop policy if exists "Public read gigs"    on gigs;
+drop policy if exists "Only hosts post gigs" on gigs;
+drop policy if exists "Manage own gigs"     on gigs;
+create policy "Public read gigs" on gigs for select using (true);
+create policy "Only hosts post gigs" on gigs for insert with check (
+  auth.uid() = host_id and
+  exists (select 1 from profiles where profiles.id = auth.uid() and profiles.role = 'host')
+);
+create policy "Manage own gigs" on gigs for all using (auth.uid() = host_id);
 
-  -- 6. RLS POLICIES (allow read for all, write for owner)
-  create policy "Public profiles" on profiles for select using (true);
-  create policy "Own profile" on profiles for all using (auth.uid() = id);
+-- 7. APPLICATIONS POLICIES
+drop policy if exists "Students can apply"       on applications;
+drop policy if exists "Read own applications"    on applications;
+drop policy if exists "Manage own applications"  on applications;
+create policy "Students can apply" on applications for insert with check (auth.uid() = student_id);
+create policy "Read own applications" on applications for select using (
+  auth.uid() = student_id or
+  exists (select 1 from gigs where gigs.id = applications.gig_id and gigs.host_id = auth.uid())
+);
+create policy "Manage own applications" on applications for all using (auth.uid() = student_id);
 
-  create policy "Public gigs" on gigs for select using (true);
-  create policy "Own gigs" on gigs for all using (auth.uid() = host_id);
-
-  create policy "Own applications" on applications for all using (auth.uid() = student_id);
-  create policy "Host view apps" on applications for select using (
-    exists (select 1 from gigs where gigs.id = applications.gig_id and gigs.host_id = auth.uid())
-  );
-
-  create policy "Own payments" on payments for all using (auth.uid() = user_id);
-
-════════════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════
+-->
 </body>
 </html>
