@@ -157,6 +157,29 @@
     .loading-state { text-align: center; padding: 3rem; color: var(--mid); font-size: 14px; }
     .empty-state { text-align: center; padding: 4rem 2rem; color: var(--mid); }
     .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .detail-section { margin-bottom: 1.25rem; }
+.detail-section-title { font-size: 11px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.detail-banner { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; border-radius: 12px; margin-bottom: 1.25rem; position: relative; }
+.detail-title { font-family: var(--syne); font-size: 1.3rem; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+.detail-meta { font-size: 13px; color: var(--mid); margin-bottom: 1rem; line-height: 1.7; }
+.detail-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
+.detail-stat { background: var(--light); border-radius: 10px; padding: 12px 14px; }
+.detail-stat-label { font-size: 11px; color: var(--mid); margin-bottom: 4px; }
+.detail-stat-value { font-size: 15px; font-weight: 600; color: var(--navy); }
+.detail-desc { font-size: 14px; color: var(--mid); line-height: 1.75; background: var(--light); border-radius: 10px; padding: 14px; }
+.detail-apply-btn { width: 100%; padding: 13px; font-size: 15px; font-family: var(--dm); font-weight: 500; border-radius: 10px; background: var(--orange); color: #fff; border: none; cursor: pointer; margin-top: 1rem; transition: all 0.2s; }
+.detail-apply-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.detail-apply-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.profile-detail-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-family: var(--syne); font-size: 28px; font-weight: 800; color: #fff; }
+.profile-detail-header { text-align: center; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.profile-detail-name { font-family: var(--syne); font-size: 1.2rem; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+.profile-detail-sub { font-size: 13px; color: var(--mid); }
+.profile-stats-row { display: flex; justify-content: space-around; padding: 1rem 0; background: var(--light); border-radius: 12px; margin-bottom: 1.25rem; }
+.profile-stats-row .n { font-family: var(--syne); font-size: 1.2rem; font-weight: 700; color: var(--navy); text-align: center; }
+.profile-stats-row .l { font-size: 11px; color: var(--mid); text-align: center; margin-top: 2px; }
+.contact-btn { width: 100%; padding: 13px; font-size: 15px; font-family: var(--dm); font-weight: 500; border-radius: 10px; background: var(--navy); color: #fff; border: none; cursor: pointer; margin-top: 0.5rem; transition: all 0.2s; }
+.contact-btn:hover { background: var(--orange); }
     .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--navy); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 9999; transform: translateY(100px); opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); border-left: 3px solid var(--orange); max-width: 340px; }
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.error { border-left-color: var(--red); }
@@ -365,6 +388,14 @@
   </div>
 </div>
 
+  <!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal" onclick="handleDetailOverlayClick(event)">
+  <div class="modal" style="max-width:560px;width:100%">
+    <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+  
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -504,7 +535,7 @@ function renderGigs(id, gigs) {
     const host  = g.profiles ? `${g.profiles.first_name} ${g.profiles.last_name}` : 'Host';
     const spots = Math.max(0,(g.students_needed||1)-(g.applications_count||0));
     const feat  = g.is_featured ? '<span style="position:absolute;top:10px;right:10px;background:#F97316;color:#fff;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600">FEATURED</span>' : '';
-    return `<div class="event-card">
+    return `<div class="event-card" onclick="openGigDetail('${g.id}')">
       <div class="event-banner" style="background:${BANNER_BG[ck]||'#F0F9FF'}">${BANNERS[ck]||'⭐'}${feat}<span class="event-type-badge">${g.category||'Event'}</span></div>
       <div class="event-body">
         <div class="event-title">${g.title}</div>
@@ -528,7 +559,7 @@ function renderStudents(id, students) {
   el.innerHTML = students.map((s,i) => {
     const initials = (s.first_name?.[0]||'') + (s.last_name?.[0]||'?');
     const skills   = (s.skills||[]).slice(0,3).map(sk=>`<span class="skill-chip">${sk}</span>`).join('');
-    return `<div class="student-card">
+    return `<div class="student-card" onclick="openStudentDetail('${s.id}')">
       <div class="avatar" style="background:${AVATAR_COLORS[i%AVATAR_COLORS.length]}">${initials}</div>
       <div class="student-name">${s.first_name} ${s.last_name}</div>
       <div class="student-college">${s.college||s.area||''}</div>
@@ -925,6 +956,163 @@ function showToast(msg, isError = false) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+  // ─── DETAIL MODAL ─────────────────────────────────────────────────────
+function openDetailModal() {
+  document.getElementById('detail-modal').classList.add('active');
+}
+
+function closeDetailModal() {
+  document.getElementById('detail-modal').classList.remove('active');
+}
+
+function handleDetailOverlayClick(e) {
+  if (e.target === document.getElementById('detail-modal')) closeDetailModal();
+}
+
+async function openGigDetail(gigId) {
+  // Load full gig data
+  const { data: g, error } = await sb
+    .from('gigs')
+    .select('*, profiles(first_name, last_name, phone, email, area)')
+    .eq('id', gigId)
+    .single();
+
+  if (error || !g) { showToast('Could not load gig details', true); return; }
+
+  const ck     = getCatKey(g.category);
+  const emoji  = BANNERS[ck] || '⭐';
+  const bg     = BANNER_BG[ck] || '#F0F9FF';
+  const tagC   = ['tag-orange','tag-green','tag-blue','tag-purple'];
+  const tags   = (g.skills_required||[]).map((s,i)=>`<span class="tag ${tagC[i%4]}">${s}</span>`).join('');
+  const host   = g.profiles ? `${g.profiles.first_name} ${g.profiles.last_name}` : 'Host';
+  const spots  = Math.max(0,(g.students_needed||1)-(g.applications_count||0));
+  const date   = g.event_date ? new Date(g.event_date).toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) : 'Date TBD';
+  const feat   = g.is_featured ? '<span style="position:absolute;top:10px;right:10px;background:#F97316;color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600">FEATURED</span>' : '';
+
+  // Check if already applied
+  let alreadyApplied = false;
+  if (currentUser) {
+    const { data: ex } = await sb.from('applications')
+      .select('id').eq('gig_id', gigId).eq('student_id', currentUser.id).maybeSingle();
+    alreadyApplied = !!ex;
+  }
+
+  const isStudent = currentUser && currentProfile?.role === 'student';
+  const btnLabel  = !currentUser ? 'Log in to Apply'
+    : alreadyApplied ? '✅ Already Applied'
+    : currentProfile?.role === 'host' ? 'Hosts cannot apply'
+    : 'Apply Now';
+  const btnDisabled = alreadyApplied || currentProfile?.role === 'host' ? 'disabled' : '';
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-banner" style="background:${bg}">${emoji}${feat}</div>
+    <div class="detail-section">
+      <div class="detail-title">${g.title}</div>
+      <div class="detail-meta">
+        Posted by <strong>${host}</strong><br>
+        📅 ${date}<br>
+        📍 ${g.location || 'Location not specified'}<br>
+        🏷️ ${g.category || 'General'}
+      </div>
+      ${tags ? `<div class="detail-tags">${tags}</div>` : ''}
+    </div>
+    <div class="detail-grid">
+      <div class="detail-stat">
+        <div class="detail-stat-label">Budget</div>
+        <div class="detail-stat-value" style="color:var(--orange)">₹${Number(g.budget).toLocaleString('en-IN')}</div>
+      </div>
+      <div class="detail-stat">
+        <div class="detail-stat-label">Students Needed</div>
+        <div class="detail-stat-value">${g.students_needed || 1} student${(g.students_needed||1)!==1?'s':''}</div>
+      </div>
+      <div class="detail-stat">
+        <div class="detail-stat-label">Spots Left</div>
+        <div class="detail-stat-value" style="color:${spots>0?'var(--green)':'var(--red)'}">${spots} spot${spots!==1?'s':''}</div>
+      </div>
+      <div class="detail-stat">
+        <div class="detail-stat-label">Status</div>
+        <div class="detail-stat-value" style="color:${g.status==='open'?'var(--green)':'var(--mid)'}">
+          ${g.status === 'open' ? '🟢 Open' : '🔴 Closed'}
+        </div>
+      </div>
+    </div>
+    ${g.description ? `
+    <div class="detail-section">
+      <div class="detail-section-title">About this gig</div>
+      <div class="detail-desc">${g.description}</div>
+    </div>` : ''}
+    <button class="detail-apply-btn" ${btnDisabled}
+      onclick="applyToGig('${g.id}','${g.title.replace(/'/g,"\\'")}');closeDetailModal()">
+      ${btnLabel}
+    </button>`;
+
+  openDetailModal();
+}
+
+async function openStudentDetail(studentId) {
+  const { data: s, error } = await sb
+    .from('profiles')
+    .select('*')
+    .eq('id', studentId)
+    .single();
+
+  if (error || !s) { showToast('Could not load student profile', true); return; }
+
+  const initials  = (s.first_name?.[0]||'') + (s.last_name?.[0]||'?');
+  const colorIdx  = Math.abs(studentId.charCodeAt(0) + studentId.charCodeAt(1)) % AVATAR_COLORS.length;
+  const color     = AVATAR_COLORS[colorIdx];
+  const skillTags = (s.skills||[]).map(sk=>`<span class="skill-tag">${sk}</span>`).join('');
+  const isHost    = currentProfile?.role === 'host';
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="profile-detail-header">
+      <div class="profile-detail-avatar" style="background:${color}">${initials}</div>
+      <div class="profile-detail-name">${s.first_name} ${s.last_name}</div>
+      <div class="profile-detail-sub">${s.college || ''}</div>
+      <div class="profile-detail-sub">📍 ${s.area || 'Location not set'}</div>
+    </div>
+    <div class="profile-stats-row">
+      <div><div class="n">${s.gigs_completed||0}</div><div class="l">Gigs done</div></div>
+      <div><div class="n">${s.rating ? Number(s.rating).toFixed(1) : '—'}</div><div class="l">Rating</div></div>
+      <div><div class="n">${(s.skills||[]).length}</div><div class="l">Skills</div></div>
+    </div>
+    ${skillTags ? `
+    <div class="detail-section">
+      <div class="detail-section-title">Skills</div>
+      <div class="skill-tags" style="justify-content:flex-start">${skillTags}</div>
+    </div>` : ''}
+    ${s.college ? `
+    <div class="detail-grid">
+      <div class="detail-stat">
+        <div class="detail-stat-label">College</div>
+        <div class="detail-stat-value" style="font-size:13px">${s.college}</div>
+      </div>
+      <div class="detail-stat">
+        <div class="detail-stat-label">Area</div>
+        <div class="detail-stat-value" style="font-size:13px">${s.area||'—'}</div>
+      </div>
+    </div>` : ''}
+    ${isHost ? `
+    <div class="detail-section">
+      <div class="detail-section-title">Contact</div>
+      <div class="detail-desc">
+        📱 ${s.phone || 'Not provided'}<br>
+        ✉️ ${s.email || 'Not provided'}
+      </div>
+    </div>
+    <button class="contact-btn" onclick="window.open('https://wa.me/91${s.phone?.replace(/\D/g,'')}','_blank')">
+      💬 Contact on WhatsApp
+    </button>` : `
+    <div class="detail-desc" style="text-align:center;padding:1rem">
+      🔒 Contact details visible to hosts only.<br>
+      <a href="#" onclick="openAuthModal('register');closeDetailModal();return false" style="color:var(--orange);font-weight:500">
+        Register as a Host to contact students →
+      </a>
+    </div>`}`;
+
+  openDetailModal();
+}
+  
 // ─── START ────────────────────────────────────────────────────────────
 init();
 </script>
